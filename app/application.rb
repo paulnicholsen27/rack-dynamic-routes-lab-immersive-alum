@@ -1,28 +1,25 @@
+require 'pry'
+
 class Application
 
 	def call(env)
-		resp = Rack::Response.new
 		req = Rack::Request.new(env)
+		resp = Rack::Response.new
 
 		if req.path.match(/items/)
-			item_name = req.path.split(/\//).last
-			puts item_name
-			desired_item = nil
-			@@items.each do |item|
-				if item.name.downcase == item_name.downcase
-					desired_item = item
-				end
-			end
-			if desired_item
-				resp.write(desired_item.price)
+			item_name = req.path.split("/items/").last
+			item = @@items.find{|item| item.name == item_name}
+			if item
+				resp.write item.price
 			else
-				resp.write "Item not found"
 				resp.status = 400
+				resp.write "Item not found"
 			end
 		else
-			resp.write "Route not found"
 			resp.status = 404
+			resp.write "Route not found"
 		end
 		resp.finish
 	end
+
 end
